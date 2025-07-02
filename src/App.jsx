@@ -4,6 +4,9 @@ import Spinner from "./componets/Spinner";
 import MovieCard from "./componets/MovieCard";
 import { useDebounce } from "react-use";
 
+
+import movieBanner from './assets/hero.png';
+
 // import './App.css'
 
 const API_BASE_URL ='https://www.omdbapi.com/?'
@@ -82,7 +85,7 @@ function App() {
 
       <div className="wrapper">
         <header>
-        <img src="./src/assets/hero.png" alt="hero banner" />
+        <img src={movieBanner} alt="hero banner" />
           <h1 >Find <span className="text-gradient"> Movies</span> You'll Enjoy Without the Hassle</h1>
         {/* search */}
         <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
