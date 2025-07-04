@@ -3,7 +3,8 @@ import Search from "./componets/Search"
 import Spinner from "./componets/Spinner";
 import MovieCard from "./componets/MovieCard";
 import { useDebounce } from "react-use";
-
+import logTrendingMovies from "./appwrite";
+import { fetchTrendingMovies } from "./appwrite";
 
 import movieBanner from './assets/hero.png';
 
@@ -11,7 +12,8 @@ import movieBanner from './assets/hero.png';
 
 const API_BASE_URL ='https://www.omdbapi.com/?'
 const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
-console.log(API_KEY);
+// console.log(API_KEY);
+
 
 
 
@@ -21,11 +23,13 @@ function App() {
   let [searchTerm , setSearchTerm]= useState("")
   let[errorMessage, setErrorMessage] = useState("")
   let [movieList , setMovieList]= useState([])
-  console.log(movieList);
+  // console.log(movieList);
   let[isLoading, setIsLoading]=useState(false)
   let [debouncesearchTerm , setDebounceSearchTerm] = useState('')
-  console.log(debouncesearchTerm);
+  // console.log(debouncesearchTerm);
   
+  // trending movies
+  let [getTrendingMovies, setgetTrendingMovies] = useState([])
  
   useDebounce(()=> setDebounceSearchTerm(searchTerm) , 500 ,[searchTerm])
 
@@ -43,7 +47,7 @@ function App() {
       }
 
       let data  =await response.json()
-      console.log(data);
+      // console.log(data);
 
       if(data.Response === 'False'){
         setErrorMessage(data.Error || 'Failed to fetch Movies')
@@ -53,6 +57,11 @@ function App() {
 
       // data fetechd sucessfully and response is true
       setMovieList(data.Search || [])
+
+      // trending function 
+       if(query && data.Search.length>0){
+        await logTrendingMovies(query,data.Search[0])
+       }
       
 
      
@@ -79,6 +88,22 @@ function App() {
   
   
 
+// fetch trending movies from  appweite 
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const movies = await fetchTrendingMovies();
+      setgetTrendingMovies(movies);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  fetchData();
+}, []);
+
+
+
   return (
     <main>
       <div className="pattern"></div>
@@ -92,6 +117,28 @@ function App() {
         </header>
       
          {/* main body part  */}
+
+         {/* trending Movies section */}
+         {getTrendingMovies.length >0 && (
+          <section className="trending">
+          <h2> Trending Movies</h2>
+          <ul>
+            {getTrendingMovies.map((movie ,index)=>(
+
+              <li key={movie.$id}>
+
+              <p>{index+1}</p>
+              <img src={movie.poster} alt={movie.title} />
+            
+              </li>
+            ))}
+          </ul>
+
+
+          </section>
+         )}
+
+         {/* all movies section  */}
         <section className="all-movies mt-[40px]">
         <h2 className="text-center">All Movies</h2>
 
